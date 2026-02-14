@@ -27,13 +27,16 @@ export default function ExamInterface({ exam, questions }: ExamInterfaceProps) {
     const [answers, setAnswers] = useState<Record<string, string>>({})
     const [flagged, setFlagged] = useState<Set<string>>(new Set())
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isPaused, setIsPaused] = useState(false)
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0))
+            if (!isPaused) {
+                setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0))
+            }
         }, 1000)
         return () => clearInterval(timer)
-    }, [])
+    }, [isPaused])
 
     const formatTime = (seconds: number) => {
         const min = Math.floor(seconds / 60)
@@ -76,8 +79,33 @@ export default function ExamInterface({ exam, questions }: ExamInterfaceProps) {
         }
     }
 
+    const handleQuit = () => {
+        if (confirm("Are you sure you want to quit? Your progress will not be saved.")) {
+            router.push('/dashboard')
+        }
+    }
+
     return (
-        <div className="flex flex-col h-screen bg-[var(--bg-canvas)] text-[var(--text-main)] font-sans overflow-hidden">
+        <div className="flex flex-col h-screen bg-[var(--bg-canvas)] text-[var(--text-main)] font-sans overflow-hidden relative">
+            {/* Pause Overlay */}
+            {isPaused && (
+                <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center p-8">
+                    <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center border border-gray-100">
+                        <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <span className="material-symbols-outlined text-4xl text-[var(--primary-blue)]">pause</span>
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Exam Paused</h2>
+                        <p className="text-gray-500 mb-8">Take a breather. Your time is paused.</p>
+                        <button
+                            onClick={() => setIsPaused(false)}
+                            className="w-full py-4 bg-[var(--primary-blue)] text-white text-lg font-bold rounded-xl hover:bg-indigo-700 transition-transform hover:scale-[1.02] shadow-lg shadow-indigo-200"
+                        >
+                            Resume Exam
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             <header className="h-16 bg-[var(--bg-surface)] border-b border-[var(--border-color)] flex items-center justify-between px-6 shrink-0 z-20 shadow-sm">
                 <div className="flex items-center gap-4">
@@ -86,18 +114,28 @@ export default function ExamInterface({ exam, questions }: ExamInterfaceProps) {
                     <span className="text-sm font-medium text-[var(--text-secondary)]">Difficulty: {exam.difficulty}</span>
                 </div>
                 <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md">
-                        <span className="material-symbols-outlined text-slate-500 text-[20px]">timer</span>
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${timeLeft < 300 ? 'bg-red-50 text-red-600 animate-pulse' : 'bg-slate-100'}`}>
+                        <span className="material-symbols-outlined text-[20px]">timer</span>
                         <span className="font-mono font-semibold text-slate-800 text-lg">{formatTime(timeLeft)}</span>
                     </div>
-                    <button className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--primary-blue)] transition-colors text-sm font-medium">
+                    <button
+                        onClick={() => setIsPaused(true)}
+                        className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--primary-blue)] transition-colors text-sm font-medium"
+                    >
                         <span className="material-symbols-outlined text-[20px] fill-0">pause_circle</span>
                         Pause
+                    </button>
+                    <button
+                        onClick={handleQuit}
+                        className="flex items-center gap-2 text-red-500 hover:text-red-700 transition-colors text-sm font-medium border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-lg"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">logout</span>
+                        Quit
                     </button>
                 </div>
             </header>
 
-            <div className="flex flex-1 overflow-hidden">
+            <div className={`flex flex-1 overflow-hidden transition-opacity duration-300 ${isPaused ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                 {/* Main Content */}
                 <main className="flex-1 flex flex-col h-full relative overflow-y-auto scrollbar-hide">
                     {/* Progress Bar */}
@@ -118,8 +156,8 @@ export default function ExamInterface({ exam, questions }: ExamInterfaceProps) {
                             <button
                                 onClick={() => toggleFlag(currentQuestion.id)}
                                 className={`flex items-center gap-2 transition-colors text-sm font-medium px-3 py-1.5 rounded-lg border ${flagged.has(currentQuestion.id)
-                                        ? 'text-[var(--warning-amber)] bg-amber-50 border-amber-100'
-                                        : 'text-slate-500 hover:text-[var(--warning-amber)] border-transparent hover:bg-amber-50'
+                                    ? 'text-[var(--warning-amber)] bg-amber-50 border-amber-100'
+                                    : 'text-slate-500 hover:text-[var(--warning-amber)] border-transparent hover:bg-amber-50'
                                     }`}
                             >
                                 <span className={`material-symbols-outlined text-[20px] ${flagged.has(currentQuestion.id) ? 'fill-1' : 'fill-0'}`}>flag</span>
@@ -145,12 +183,12 @@ export default function ExamInterface({ exam, questions }: ExamInterfaceProps) {
                                         onChange={() => handleSelectAnswer(currentQuestion.id, option.id)}
                                     />
                                     <div className={`flex items-center p-4 rounded-xl border-2 transition-all bg-[var(--bg-surface)] ${answers[currentQuestion.id] === option.id
-                                            ? 'border-[var(--primary-blue)] bg-blue-50 shadow-[0_0_0_1px_var(--primary-blue)]'
-                                            : 'border-gray-200 hover:border-gray-300 hover:bg-slate-50'
+                                        ? 'border-[var(--primary-blue)] bg-blue-50 shadow-[0_0_0_1px_var(--primary-blue)]'
+                                        : 'border-gray-200 hover:border-gray-300 hover:bg-slate-50'
                                         }`}>
                                         <div className={`h-8 w-8 rounded-full border-2 flex items-center justify-center mr-4 radio-indicator shrink-0 transition-colors ${answers[currentQuestion.id] === option.id
-                                                ? 'bg-[var(--primary-blue)] border-[var(--primary-blue)]'
-                                                : 'border-gray-300 bg-white'
+                                            ? 'bg-[var(--primary-blue)] border-[var(--primary-blue)]'
+                                            : 'border-gray-300 bg-white'
                                             }`}>
                                             <span className={`text-white font-bold text-sm material-symbols-outlined text-[18px] ${answers[currentQuestion.id] === option.id ? 'opacity-100' : 'opacity-0'
                                                 }`}>check</span>

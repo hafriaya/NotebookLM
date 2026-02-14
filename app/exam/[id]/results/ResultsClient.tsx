@@ -80,6 +80,21 @@ export default function ResultsClient({ exam }: ResultsClientProps) {
                         <p className="text-[var(--text-secondary)] mt-1">Completed on {new Date(exam.created_at).toLocaleDateString()}</p>
                     </div>
                     <div className="flex gap-3">
+                        <button
+                            onClick={async () => {
+                                const { retakeExam } = await import('@/actions/exam')
+                                try {
+                                    const res = await retakeExam(exam.id)
+                                    if (res.success) router.push(`/exam/${res.newExamId}`)
+                                } catch (e) {
+                                    alert('Failed to start retake')
+                                }
+                            }}
+                            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">refresh</span>
+                            Retake Exam
+                        </button>
                         <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition-colors">
                             <span className="material-symbols-outlined text-[18px]">share</span>
                             Share Results
