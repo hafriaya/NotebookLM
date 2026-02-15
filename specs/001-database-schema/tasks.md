@@ -1,4 +1,4 @@
-# Implementation Tasks: ExamSim MVP
+# Implementation Tasks: Moraja3aAI MVP
 
 **Feature**: Initialize Database & Core Features (from `specs/001-database-schema`)
 **Status**: In Progress

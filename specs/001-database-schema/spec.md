@@ -25,7 +25,7 @@ The system needs a foundational database structure to support user profiles, con
 
 The system must support Vector Search to enable Retrieval Augmented Generation (RAG) for exam creation.
 
-**Why this priority**: Core value proposition of ExamSim.
+**Why this priority**: Core value proposition of Moraja3aAI.
 
 **Independent Test**: Verify the `document_sections` table has a vector column of dimension 1536.
 
