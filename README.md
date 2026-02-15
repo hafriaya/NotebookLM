@@ -1,4 +1,4 @@
-# ExamSim - AI-Powered Exam Preparation Platform
+# Moraja3aAI - AI-Powered Exam Preparation Platform
 
 Transform your study materials into personalized practice exams and flashcards with the power of AI.
 
@@ -58,8 +58,8 @@ Transform your study materials into personalized practice exams and flashcards w
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/hafriaya/NotebookLM.git
-cd NotebookLM
+git clone https://github.com/hafriaya/Moraja3aAI.git
+cd Moraja3aAI
 ```
 
 2. **Install dependencies**
