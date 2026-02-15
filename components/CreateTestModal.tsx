@@ -17,7 +17,7 @@ export default function CreateTestModal({ isOpen, onClose, initialMaterialId, in
     const [file, setFile] = useState<File | null>(null)
     const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard'>('Medium')
     const [examType, setExamType] = useState<'Conceptual' | 'Practical' | 'Mixed'>('Mixed')
-    const [questionCount, setQuestionCount] = useState<number>(10)
+    const [questionCount, setQuestionCount] = useState<number>(5)
     const [customPrompt, setCustomPrompt] = useState<string>('')
     const [status, setStatus] = useState<'idle' | 'uploading' | 'generating' | 'done'>('idle')
     const [error, setError] = useState<string | null>(null)
